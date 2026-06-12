@@ -21,7 +21,6 @@
 
 *Demonstrates* the terminal **PnL histogram** annotated with **Mean**, **VaR 95%**, and **VaR 99%** thresholds.
 
-![GUI Dashboard](Assets/gui-dashboard.png)
 
 *Demonstrates* interactive controls for `paths`, `steps`, `seed`, and `strike`, plus real-time rendering of the distribution plot and metrics.
 
