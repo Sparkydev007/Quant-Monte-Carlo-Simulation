@@ -172,8 +172,9 @@ Using discrete-time simulation with **log-Euler** (exact in the log-normal sense
 
 \[
 \Delta \ln S = \left(\mu - \tfrac{1}{2}\sigma^2\right)\Delta t + \sigma\sqrt{\Delta t}\,Z,
-\quad Z \sim \mathcal{N}(0,1)
+\qquad Z \sim \mathcal{N}(0,1).
 \]
+
 
 Paths are built via cumulative sums in log space and exponentiation back to price space.
 
