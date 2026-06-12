@@ -325,35 +325,25 @@ All major components are implemented in `outputs/monte_carlo_framework.py` as a 
 
 ### Mermaid Architecture Diagram
 
+> Note: GitHub Mermaid rendering can be sensitive to node-label characters.
+> If Mermaid fails to render in your GitHub UI, the architecture is still documented in the section text.
+
 ```mermaid
 flowchart TD
-  A[CLI entrypoint: main()] --> B[run_demo_simulation]
+  A[CLI] --> B[run_demo_simulation]
   B --> C[SimulationConfig]
   C --> D[RandomShockGenerator]
-  D --> E1[GeometricBrownianMotion]
-  D --> E2[MertonJumpDiffusion]
-  D --> E3[MultiAssetGeometricBrownianMotion]
-  E3 --> F[Paths tensor]
-
-  F --> G[OptionPricer]
-  G --> H[European / Arithmetic Asian price]
-
-  F --> I[Portfolio terminal values]
-  I --> J[RiskAnalyzer]
-  J --> K[RiskMetrics]
-
-  H --> L[SimulationResult bundle]
-  K --> L
-  L --> M[create_distribution_figure]
-  M --> N[Saved PNG output]
+  D --> E[Processes]
+  E --> F[OptionPricer]
+  F --> G[RiskAnalyzer]
+  G --> H[SimulationResult]
 
   subgraph UI
     P[--gui flag] --> Q[Tkinter GUI]
-    P --> R[Browser fallback HTTP server]
-    Q --> S[Run simulation from inputs]
-    R --> T[Render HTML dashboard]
+    P --> R[Browser fallback]
   end
 ```
+
 
 ---
 
