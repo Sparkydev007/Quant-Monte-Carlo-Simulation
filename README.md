@@ -83,93 +83,187 @@
 
 ## Project Overview
 
-This project provides a **production-oriented, production-reviewable Python Monte Carlo simulation framework for quantitative finance**.
+This project provides a **production-oriented Monte Carlo simulation framework for quantitative finance**, designed to be both research-grade and engineering-reviewable.
 
-It supports:
+The framework combines modern quantitative finance models, risk analytics, variance-reduction techniques, and visualization capabilities within a unified and extensible architecture.
 
-- **Vectorized** Monte Carlo simulation paths in NumPy
+### Core Capabilities
+
+- **Vectorized Monte Carlo simulations** implemented in NumPy
 - **Geometric Brownian Motion (GBM)**
 - **Merton Jump-Diffusion**
-- **Multi-asset correlated GBM** driven by correlated Brownian shocks via **Cholesky decomposition**
-- **PRNG** and **Sobol quasi-Monte Carlo** sampling (Scrambled Sobol via `scipy.stats.qmc`)
-- **Antithetic variates** for variance reduction
-- **European option pricing** and **arithmetic Asian option pricing**
-- **Portfolio risk metrics** from terminal PnL distributions:
-  - Mean, Standard Deviation
-  - VaR 95% / VaR 99%
-  - CVaR 95% / CVaR 99% (Expected Shortfall)
-- Distribution **histogram generation**
-- **Tkinter GUI** (when available)
-- **Browser-based GUI fallback** (standard library HTTP server) when Tkinter is not installed
+- **Multi-Asset Correlated GBM** using Cholesky-based correlation structures
+- **Pseudo-Random (PRNG)** and **Sobol Quasi-Monte Carlo** sampling
+- **Antithetic Variates** for variance reduction
+- **European Option Pricing**
+- **Arithmetic Asian Option Pricing**
+- **Portfolio Risk Analytics**
+  - Mean
+  - Standard Deviation
+  - VaR (95%, 99%)
+  - CVaR / Expected Shortfall (95%, 99%)
+- **Distribution Histogram Generation**
+- **Tkinter Desktop GUI**
+- **Browser-Based GUI Fallback** using the Python standard library
 
-### Why Monte Carlo matters in quant finance
+### Why Monte Carlo Matters in Quantitative Finance
 
-Many realistic derivatives and risk problems lack closed-form solutions:
+Many realistic derivatives-pricing and risk-management problems do not admit closed-form analytical solutions. Examples include:
 
-- path dependence (e.g., **Asian options**)
-- discontinuities / jumps (e.g., **Merton**)
-- multi-asset correlation (risk aggregation and joint dynamics)
-- tail-risk estimation (VaR / CVaR)
+- **Path-dependent derivatives** (e.g., Asian options)
+- **Jump processes and discontinuous dynamics** (e.g., Merton Jump-Diffusion)
+- **Multi-asset correlation structures**
+- **Portfolio-level risk aggregation**
+- **Tail-risk estimation** through VaR and CVaR
 
-Monte Carlo provides a general-purpose estimation engine that can be validated through convergence, sanity checks, and distributional diagnostics.
+Monte Carlo simulation provides a flexible numerical framework capable of modeling these complexities while supporting convergence analysis, validation procedures, and distributional diagnostics.
 
-### Production-oriented design goals
+### Engineering Design Principles
 
-> This framework is built to be *engineering-review friendly*: deterministic seeding, explicit configuration, consistent tensor shapes, vectorized computations, and clear interfaces between simulation, pricing, risk, plotting, and UI.
+This framework is designed with a strong emphasis on:
+
+- Deterministic seeding and reproducibility
+- Explicit configuration and parameter management
+- Consistent tensor and array structures
+- Fully vectorized numerical computation
+- Modular separation of simulation, pricing, risk analytics, visualization, and UI layers
+- Production-reviewable architecture suitable for quantitative research and software engineering workflows
 
 ---
 
 ## Key Features
 
-- **Vectorized NumPy implementation**
-  - Simulations operate on full tensors of shape `(n_paths, n_steps + 1, ...)`.
-  - Avoids Python-level loops for performance and reproducibility.
+### Simulation Engine
 
-- **Abstract `StochasticProcess` base class**
-  - Enforces a consistent `simulate()` contract.
+- Fully **vectorized NumPy implementation**
+- Simulations operate on tensors of shape:
 
-- **Reproducible seed management**
-  - Uses `numpy.random.default_rng(seed)` for PRNG.
-  - Uses scrambled Sobol with deterministic `seed`.
+```text
+(n_paths, n_steps + 1, ...)
+```
 
-- **PRNG sampling**
-  - Gaussian shocks via `rng.standard_normal`.
+- Minimizes Python-level loops for improved performance and reproducibility
 
-- **Sobol quasi-Monte Carlo sampling**
-  - Uses `scipy.stats.qmc.Sobol(..., scramble=True)`.
-  - Transforms uniforms to normals using inverse CDF (`scipy.stats.norm.ppf`).
+### Stochastic Process Framework
 
-- **Antithetic variates**
-  - Pairs Gaussian shocks `Z` and `-Z`.
-  - Implemented at the shock generation layer for reuse across processes.
+- Abstract `StochasticProcess` base class
+- Consistent `simulate()` interface across all models
+- Extensible architecture for custom stochastic processes
 
-- **GBM**
-  - Exact log-Euler discretization using cumulative log increments.
+### Random Number Generation
 
-- **Merton Jump-Diffusion**
-  - Poisson jump arrivals with normally distributed log jump sizes.
-  - Includes a jump compensator term for drift adjustment.
+#### Reproducible Seed Management
 
-- **Multi-asset correlated GBM using Cholesky decomposition**
-  - Correlated Brownian drivers produced from an instantaneous covariance matrix.
+- Uses `numpy.random.default_rng(seed)`
+- Supports deterministic simulation workflows
+- Reproducible Sobol sequence generation through fixed seeds
 
-- **European option pricing**
-  - Terminal-price payoff from simulated paths with discounting.
+#### Pseudo-Random Sampling (PRNG)
 
-- **Arithmetic Asian option pricing**
-  - Path-average payoff from simulated trajectories.
+- Gaussian shocks generated via:
 
-- **Portfolio risk metrics extraction**
-  - Mean, Std Dev, VaR 95% / 99%, CVaR 95% / 99% from terminal PnL.
+```python
+rng.standard_normal(...)
+```
 
-- **Distribution graph generation**
-  - Matplotlib histogram with annotated mean and tail thresholds.
+#### Sobol Quasi-Monte Carlo Sampling
 
-- **Tkinter GUI**
-  - Parameter inputs and in-window plot rendering.
+- Uses:
 
-- **Browser GUI fallback**
-  - Launches a local webpage at `http://127.0.0.1:8050` using only the Python standard library.
+```python
+scipy.stats.qmc.Sobol(..., scramble=True)
+```
+
+- Uniform samples transformed to Gaussian variates through:
+
+```python
+scipy.stats.norm.ppf(...)
+```
+
+### Variance Reduction
+
+#### Antithetic Variates
+
+- Generates paired shocks:
+
+```text
+Z and -Z
+```
+
+- Reduces estimator variance
+- Implemented at the shock-generation layer for reuse across all simulation models
+
+### Supported Stochastic Models
+
+#### Geometric Brownian Motion (GBM)
+
+- Exact log-Euler discretization
+- Vectorized cumulative log-return construction
+- Efficient path generation in log space
+
+#### Merton Jump-Diffusion
+
+- Poisson jump arrivals
+- Normally distributed log jump sizes
+- Drift-compensated jump process
+- Fully vectorized implementation
+
+#### Multi-Asset Correlated GBM
+
+- Cholesky-based correlation modeling
+- Correlated Brownian drivers generated from covariance matrices
+- Supports portfolio-level simulation workflows
+
+### Derivative Pricing
+
+#### European Options
+
+- Terminal payoff pricing
+- Discounted Monte Carlo valuation
+
+#### Arithmetic Asian Options
+
+- Path-average payoff calculation
+- Monte Carlo valuation of path-dependent derivatives
+
+### Risk Analytics
+
+Portfolio risk metrics derived from terminal PnL distributions:
+
+- Mean
+- Standard Deviation
+- VaR 95%
+- VaR 99%
+- CVaR 95%
+- CVaR 99%
+
+### Visualization
+
+- Distribution histogram generation
+- Mean annotation
+- VaR and CVaR threshold markers
+- Publication-quality plotting using Matplotlib
+
+### User Interfaces
+
+#### Tkinter GUI
+
+- Interactive parameter inputs
+- In-window chart rendering
+- Desktop application workflow
+
+#### Browser-Based GUI Fallback
+
+- Automatic fallback when Tkinter is unavailable
+- Local web interface served via:
+
+```text
+http://127.0.0.1:8050
+```
+
+- Implemented entirely with the Python standard library
+
+---
 
 ## Mathematical Background
 
