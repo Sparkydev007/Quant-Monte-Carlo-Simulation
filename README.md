@@ -157,149 +157,216 @@ Monte Carlo provides a general-purpose estimation engine that can be validated t
 
 ---
 
-## Mathematical Background
+# Mathematical Background
 
 ### Geometric Brownian Motion (GBM)
 
-GBM under drift
+GBM under drift:
 
-\[
-\frac{dS_t}{S_t} = \mu\,dt + \sigma\,dW_t
-\]
-
+$$
+\frac{dS_t}{S_t} = \mu dt + \sigma dW_t
+$$
 
 Using discrete-time simulation with **log-Euler** (exact in the log-normal sense for GBM), the increment is:
 
-\[
-\Delta \ln S = \left(\mu - \tfrac{1}{2}\sigma^2\right)\Delta t + \sigma\sqrt{\Delta t}\,Z,
-\qquad Z \sim \mathcal{N}(0,1).
-\]
+$$
+\Delta \ln S =
+\left(\mu - \frac{1}{2}\sigma^2\right)\Delta t
++
+\sigma\sqrt{\Delta t}Z
+$$
 
+where
+
+$$
+Z \sim \mathcal{N}(0,1)
+$$
 
 Paths are built via cumulative sums in log space and exponentiation back to price space.
 
 ### Merton Jump-Diffusion
 
-Merton’s model adds compound Poisson jumps to GBM:
+Merton's model adds compound Poisson jumps to GBM:
 
-\[
-\frac{dS_t}{S_t} = (\mu - \lambda\kappa)\,dt + \sigma\,dW_t + (J-1)\,dN_t,
-\]
+$$
+\frac{dS_t}{S_t}
+=
+(\mu-\lambda\kappa)dt
++
+\sigma dW_t
++
+(J-1)dN_t
+$$
 
 with:
 
-- Jump arrivals over \(\Delta t\): \(N \sim \text{Poisson}(\lambda\Delta t)\)
-- Jump sizes: \(\ln J \sim \mathcal{N}(m, v^2)\)
-- Compensator:
+**Jump arrivals**
 
-\[
-\kappa = \mathbb{E}[J - 1] = \exp\left(m + \tfrac{1}{2}v^2\right) - 1.
-\]
+$$
+N \sim \text{Poisson}(\lambda \Delta t)
+$$
+
+**Jump sizes**
+
+$$
+\ln J \sim \mathcal{N}(m,v^2)
+$$
+
+**Compensator**
+
+$$
+\kappa
+=
+\mathbb{E}[J-1]
+=
+\exp\left(m+\frac{1}{2}v^2\right)-1
+$$
 
 The implementation samples Poisson jump counts and Gaussian shocks for both diffusion and jumps, constructing compensated drift and vectorized log increments.
 
-### Multi-asset GBM
+### Multi-Asset GBM
 
-For \(n\) correlated assets:
+For $n$ correlated assets:
 
-\[
-\frac{dS_i(t)}{S_i(t)} = \mu_i\,dt + \sigma_i\,dW_i(t)
-\]
+$$
+\frac{dS_i(t)}{S_i(t)}
+=
+\mu_i dt
++
+\sigma_i dW_i(t)
+$$
 
 with instantaneous Brownian covariance:
 
-\[
-\text{Cov}(dW_i, dW_j) = \rho_{ij}\,dt.
-\]
+$$
+\text{Cov}(dW_i,dW_j)
+=
+\rho_{ij}dt
+$$
 
-Let \(\Sigma\) denote an instantaneous *return covariance* matrix (as supplied to the simulator). We factorize:
+Let $\Sigma$ denote an instantaneous return covariance matrix.
 
-\[
-\Sigma = L L^\top
-\]
+$$
+\Sigma = LL^\top
+$$
 
-and generate correlated standard-normal drivers:
+Correlated standard-normal drivers are generated as:
 
-\[
-\mathbf{Z}_{corr} = \mathbf{Z}_{ind} L^\top,
-\quad \mathbf{Z}_{ind} \sim \mathcal{N}(0, I).
-\]
+$$
+\mathbf{Z}_{corr}
+=
+\mathbf{Z}_{ind}L^\top
+$$
 
-### Sobol quasi-random sequences
+where
 
-Sobol generates low-discrepancy points \(u \in (0,1)^d\). Gaussian variates are obtained via inverse transform:
+$$
+\mathbf{Z}_{ind}
+\sim
+\mathcal{N}(0,I)
+$$
 
-\[
-Z = \Phi^{-1}(u).
-\]
+### Sobol Quasi-Monte Carlo
 
-This project uses **scrambled** Sobol sequences for better robustness.
+Sobol generates low-discrepancy points:
 
-### Antithetic variates
+$$
+u \in (0,1)^d
+$$
+
+Gaussian variates are obtained via inverse transform:
+
+$$
+Z = \Phi^{-1}(u)
+$$
+
+This project uses **scrambled Sobol sequences** for better robustness.
+
+### Antithetic Variates
 
 For antithetic sampling, shocks are paired:
 
-\[
-Z \;\text{and}\; -Z
-\]
+$$
+Z
+\quad \text{and} \quad
+-Z
+$$
 
-and the estimator averages payoffs across each pair, typically reducing variance for monotone payoffs.
+The estimator averages payoffs across each pair, typically reducing variance for monotone payoffs.
 
-### European option payoff
+### European Option Payoff
 
-- Call:
+**Call**
 
-\[
-\max(S_T - K, 0)
-\]
+$$
+\max(S_T-K,0)
+$$
 
-- Put:
+**Put**
 
-\[
-\max(K - S_T, 0)
-\]
+$$
+\max(K-S_T,0)
+$$
 
-### Arithmetic Asian option payoff
+### Arithmetic Asian Option Payoff
 
-Using arithmetic averaging over \(M\) observation times:
+Using arithmetic averaging over $M$ observation times:
 
-\[
-\bar{S} = \frac{1}{M}\sum_{k=1}^{M} S_{t_k}
-\]
+$$
+\bar{S}
+=
+\frac{1}{M}
+\sum_{k=1}^{M}
+S_{t_k}
+$$
 
-- Call:
+**Call**
 
-\[
-\max(\bar{S} - K, 0)
-\]
+$$
+\max(\bar{S}-K,0)
+$$
 
-- Put:
+**Put**
 
-\[
-\max(K - \bar{S}, 0)
-\]
+$$
+\max(K-\bar{S},0)
+$$
 
-### VaR and CVaR / Expected Shortfall
+### VaR and CVaR (Expected Shortfall)
 
-Let \(\mathrm{PnL}\) be realized profit-and-loss. This framework reports **loss magnitudes**:
+Let $\mathrm{PnL}$ be realized profit-and-loss.
 
-\[
-\mathrm{Loss} = -\mathrm{PnL}
-\]
+$$
+\mathrm{Loss}
+=
+-\mathrm{PnL}
+$$
 
-VaR at confidence \(\alpha\) (loss quantile):
+Value at Risk:
 
-\[
-\mathrm{VaR}_{\alpha} = \mathrm{Quantile}_{\alpha}(\mathrm{Loss})
-\]
+$$
+\mathrm{VaR}_{\alpha}
+=
+\mathrm{Quantile}_{\alpha}
+(\mathrm{Loss})
+$$
 
-CVaR (Expected Shortfall) at \(\alpha\):
+Conditional Value at Risk:
 
-\[
-\mathrm{CVaR}_{\alpha} = \mathbb{E}[\mathrm{Loss}\;\mid\;\mathrm{Loss}\ge \mathrm{VaR}_{\alpha}]
-\]
+$$
+\mathrm{CVaR}_{\alpha}
+=
+\mathbb{E}
+\left[
+\mathrm{Loss}
+\mid
+\mathrm{Loss}
+\ge
+\mathrm{VaR}_{\alpha}
+\right]
+$$
 
-> **Interpretation note:** VaR/CVaR are output as **positive loss magnitudes**. Depending on your internal convention, you may need to flip signs for “PnL downside” presentation.
+> **Interpretation Note:** VaR and CVaR are reported as positive loss magnitudes. Depending on your reporting convention, you may wish to flip the sign for downside PnL presentation.
 
 ---
 
