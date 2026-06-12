@@ -167,6 +167,7 @@ GBM under drift
 \frac{dS_t}{S_t} = \mu\,dt + \sigma\,dW_t
 \]
 
+
 Using discrete-time simulation with **log-Euler** (exact in the log-normal sense for GBM), the increment is:
 
 \[
