@@ -27,43 +27,59 @@
 
 ---
 
-## Table of Contents
+# 📚 Documentation Index
 
-- [Project Overview](#project-overview)
-- [Key Features](#key-features)
-- [Mathematical Background](#mathematical-background)
-  - [Geometric Brownian Motion (GBM)](#geometric-brownian-motion-gbm)
-  - [Merton Jump-Diffusion](#merton-jump-diffusion)
-  - [Multi-asset Correlated GBM](#multi-asset-correlated-gbm)
-  - [Sobol Quasi-Monte Carlo](#sobol-quasi-monte-carlo)
-  - [Antithetic Variates](#antithetic-variates)
-  - [European and Arithmetic Asian Payoffs](#european-and-arithmetic-asian-payoffs)
-  - [VaR and CVaR / Expected Shortfall](#var-and-cvar--expected-shortfall)
-- [Architecture](#architecture)
-  - [Mermaid Architecture Diagram](#mermaid-architecture-diagram)
-- [Repository Structure](#repository-structure)
-- [Installation](#installation)
-- [Quick Start](#quick-start)
-- [GUI Usage](#gui-usage)
-- [Usage Examples](#usage-examples)
-  - [Single-asset GBM simulation](#single-asset-gbm-simulation)
-  - [Merton Jump-Diffusion simulation](#merton-jump-diffusion-simulation)
-  - [3-asset correlated GBM simulation](#3-asset-correlated-gbm-simulation)
-  - [European call pricing](#european-call-pricing)
-  - [Arithmetic Asian call pricing](#arithmetic-asian-call-pricing)
-  - [Portfolio PnL risk analysis](#portfolio-pnl-risk-analysis)
-  - [Saving a distribution graph](#saving-a-distribution-graph)
-- [CLI Reference](#cli-reference)
-- [Output Interpretation](#output-interpretation)
-- [Performance and Memory Notes](#performance-and-memory-notes)
-- [Extending the Framework](#extending-the-framework)
-- [Testing and Validation Strategy](#testing-and-validation-strategy)
-- [Limitations and Assumptions](#limitations-and-assumptions)
-- [Roadmap](#roadmap)
-- [Contribution Guidelines](#contribution-guidelines)
-- [License and Disclaimer](#license-and-disclaimer)
+| Category | Section |
+|-----------|----------|
+| 📖 Overview | [Project Overview](#project-overview) |
+| ✨ Features | [Key Features](#key-features) |
+| 📐 Theory | [Mathematical Background](#mathematical-background) |
+| 🏗️ Design | [Architecture](#architecture) |
+| 📂 Structure | [Repository Structure](#repository-structure) |
+| ⚙️ Setup | [Installation](#installation) |
+| 🚀 Getting Started | [Quick Start](#quick-start) |
+| 🖥️ Interface | [GUI Usage](#gui-usage) |
+| 💡 Examples | [Usage Examples](#usage-examples) |
+| ⌨️ Commands | [CLI Reference](#cli-reference) |
+| 📊 Analytics | [Output Interpretation](#output-interpretation) |
+| ⚡ Performance | [Performance and Memory Notes](#performance-and-memory-notes) |
+| 🔧 Customization | [Extending the Framework](#extending-the-framework) |
+| 🧪 Validation | [Testing and Validation Strategy](#testing-and-validation-strategy) |
+| ⚠️ Constraints | [Limitations and Assumptions](#limitations-and-assumptions) |
+| 🛣️ Future Work | [Roadmap](#roadmap) |
+| 🤝 Community | [Contribution Guidelines](#contribution-guidelines) |
+| 📜 Legal | [License and Disclaimer](#license-and-disclaimer) |
 
 ---
+
+## 📐 Mathematical Background
+
+| Model / Concept | Link |
+|-----------------|------|
+| Geometric Brownian Motion (GBM) | [Jump](#geometric-brownian-motion-gbm) |
+| Merton Jump-Diffusion | [Jump](#merton-jump-diffusion) |
+| Multi-Asset Correlated GBM | [Jump](#multi-asset-correlated-gbm) |
+| Sobol Quasi-Monte Carlo | [Jump](#sobol-quasi-monte-carlo) |
+| Antithetic Variates | [Jump](#antithetic-variates) |
+| European and Arithmetic Asian Payoffs | [Jump](#european-and-arithmetic-asian-payoffs) |
+| VaR and CVaR / Expected Shortfall | [Jump](#var-and-cvar--expected-shortfall) |
+
+---
+
+## 💡 Usage Examples
+
+| Example | Link |
+|----------|------|
+| Single-asset GBM simulation | [Jump](#single-asset-gbm-simulation) |
+| Merton Jump-Diffusion simulation | [Jump](#merton-jump-diffusion-simulation) |
+| 3-asset correlated GBM simulation | [Jump](#3-asset-correlated-gbm-simulation) |
+| European call pricing | [Jump](#european-call-pricing) |
+| Arithmetic Asian call pricing | [Jump](#arithmetic-asian-call-pricing) |
+| Portfolio PnL risk analysis | [Jump](#portfolio-pnl-risk-analysis) |
+| Saving a distribution graph | [Jump](#saving-a-distribution-graph) |
+
+---
+
 
 ## Project Overview
 
