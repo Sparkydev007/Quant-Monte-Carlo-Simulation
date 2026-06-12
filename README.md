@@ -155,32 +155,27 @@ Monte Carlo provides a general-purpose estimation engine that can be validated t
 - **Browser GUI fallback**
   - Launches a local webpage at `http://127.0.0.1:8050` using only the Python standard library.
 
----
-
-# Mathematical Background
+## Mathematical Background
 
 ### Geometric Brownian Motion (GBM)
 
 GBM under drift:
 
-$$
-\frac{dS_t}{S_t} = \mu dt + \sigma dW_t
-$$
+```text
+dS/S = μdt + σdW
+```
 
 Using discrete-time simulation with **log-Euler** (exact in the log-normal sense for GBM), the increment is:
 
-$$
-\Delta \ln S =
-\left(\mu - \frac{1}{2}\sigma^2\right)\Delta t
-+
-\sigma\sqrt{\Delta t}Z
-$$
+```text
+Δln(S) = (μ − 0.5σ²)Δt + σ√Δt · Z
+```
 
-where
+where:
 
-$$
-Z \sim \mathcal{N}(0,1)
-$$
+```text
+Z ~ N(0,1)
+```
 
 Paths are built via cumulative sums in log space and exponentiation back to price space.
 
@@ -188,97 +183,77 @@ Paths are built via cumulative sums in log space and exponentiation back to pric
 
 Merton's model adds compound Poisson jumps to GBM:
 
-$$
-\frac{dS_t}{S_t}
-=
-(\mu-\lambda\kappa)dt
-+
-\sigma dW_t
-+
-(J-1)dN_t
-$$
+```text
+dS/S = (μ − λκ)dt + σdW + (J − 1)dN
+```
 
 with:
 
 **Jump arrivals**
 
-$$
-N \sim \text{Poisson}(\lambda \Delta t)
-$$
+```text
+N ~ Poisson(λΔt)
+```
 
 **Jump sizes**
 
-$$
-\ln J \sim \mathcal{N}(m,v^2)
-$$
+```text
+ln(J) ~ N(m, v²)
+```
 
 **Compensator**
 
-$$
-\kappa
-=
-\mathbb{E}[J-1]
-=
-\exp\left(m+\frac{1}{2}v^2\right)-1
-$$
+```text
+κ = E[J − 1] = exp(m + 0.5v²) − 1
+```
 
 The implementation samples Poisson jump counts and Gaussian shocks for both diffusion and jumps, constructing compensated drift and vectorized log increments.
 
 ### Multi-Asset GBM
 
-For $n$ correlated assets:
+For n correlated assets:
 
-$$
-\frac{dS_i(t)}{S_i(t)}
-=
-\mu_i dt
-+
-\sigma_i dW_i(t)
-$$
+```text
+dSi/Si = μi dt + σi dWi
+```
 
 with instantaneous Brownian covariance:
 
-$$
-\text{Cov}(dW_i,dW_j)
-=
-\rho_{ij}dt
-$$
+```text
+Cov(dWi, dWj) = ρij dt
+```
 
-Let $\Sigma$ denote an instantaneous return covariance matrix.
+Let Σ denote an instantaneous return covariance matrix.
 
-$$
-\Sigma = LL^\top
-$$
+```text
+Σ = LLᵀ
+```
 
 Correlated standard-normal drivers are generated as:
 
-$$
-\mathbf{Z}_{corr}
-=
-\mathbf{Z}_{ind}L^\top
-$$
+```text
+Zcorr = Zind Lᵀ
+```
 
-where
+where:
 
-$$
-\mathbf{Z}_{ind}
-\sim
-\mathcal{N}(0,I)
-$$
+```text
+Zind ~ N(0, I)
+```
 
 ### Sobol Quasi-Monte Carlo
 
 Sobol generates low-discrepancy points:
 
-$$
-u \in (0,1)^d
-$$
+```text
+u ∈ (0,1)^d
+```
 
 Gaussian variates are obtained via inverse transform:
 
-$$
-Z = \Phi^{-1}(u)
-$$
+```text
+Z = Φ⁻¹(u)
+```
 
 This project uses **scrambled Sobol sequences** for better robustness.
 
@@ -286,11 +261,9 @@ This project uses **scrambled Sobol sequences** for better robustness.
 
 For antithetic sampling, shocks are paired:
 
-$$
-Z
-\quad \text{and} \quad
--Z
-$$
+```text
+Z and −Z
+```
 
 The estimator averages payoffs across each pair, typically reducing variance for monotone payoffs.
 
@@ -298,73 +271,55 @@ The estimator averages payoffs across each pair, typically reducing variance for
 
 **Call**
 
-$$
-\max(S_T-K,0)
-$$
+```text
+max(ST − K, 0)
+```
 
 **Put**
 
-$$
-\max(K-S_T,0)
-$$
+```text
+max(K − ST, 0)
+```
 
 ### Arithmetic Asian Option Payoff
 
-Using arithmetic averaging over $M$ observation times:
+Using arithmetic averaging over M observation times:
 
-$$
-\bar{S}
-=
-\frac{1}{M}
-\sum_{k=1}^{M}
-S_{t_k}
-$$
+```text
+S̄ = (1/M) Σ S(tk)
+```
 
 **Call**
 
-$$
-\max(\bar{S}-K,0)
-$$
+```text
+max(S̄ − K, 0)
+```
 
 **Put**
 
-$$
-\max(K-\bar{S},0)
-$$
+```text
+max(K − S̄, 0)
+```
 
 ### VaR and CVaR (Expected Shortfall)
 
-Let $\mathrm{PnL}$ be realized profit-and-loss.
+Let PnL be realized profit-and-loss.
 
-$$
-\mathrm{Loss}
-=
--\mathrm{PnL}
-$$
+```text
+Loss = −PnL
+```
 
 Value at Risk:
 
-$$
-\mathrm{VaR}_{\alpha}
-=
-\mathrm{Quantile}_{\alpha}
-(\mathrm{Loss})
-$$
+```text
+VaRα = Quantileα(Loss)
+```
 
 Conditional Value at Risk:
 
-$$
-\mathrm{CVaR}_{\alpha}
-=
-\mathbb{E}
-\left[
-\mathrm{Loss}
-\mid
-\mathrm{Loss}
-\ge
-\mathrm{VaR}_{\alpha}
-\right]
-$$
+```text
+CVaRα = E[Loss | Loss ≥ VaRα]
+```
 
 > **Interpretation Note:** VaR and CVaR are reported as positive loss magnitudes. Depending on your reporting convention, you may wish to flip the sign for downside PnL presentation.
 
